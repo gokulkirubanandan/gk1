@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect, useState } from "react";
+import Header from "./components/header/Header";
+import Search from "./components/search/Search";
+import AddProducts from "./components/addproducts/AddProducts";
+import CardBody from "./components/cards/CardBody";
+import Button from "./components/button/Button";
 
-function App() {
-  const [count, setCount] = useState(0)
+import "./App.css";
+const App = () => {
+  const [items, setItem] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [addedItems, setAddedItem] = useState([]);
+  const [showAddProducts, setShowAddProducts] = useState(false);
 
+  useEffect(() => {
+    fetch("https://fakestoreapi.com/products/")
+      .then((res) => res.json())
+      .then((data) => setItem(data));
+    console.count("hi");
+  }, []);
+  function changingSrarchData(e) {
+    setSearchValue(e.target.value);
+  }
+  const itmesFilter = items.filter((item) =>
+    item.title.toLowerCase().includes(searchValue.toLowerCase())
+  );
+
+  function addItem(item) {
+    item.addNumber = 1;
+    const itemArr = addedItems;
+    setAddedItem([...itemArr, item]);
+  }
+  // console.log(addedItems);
+  function removeItem(item) {
+    const newItems = addedItems.filter((addedItem) => addedItem.id !== item.id);
+    setAddedItem(newItems);
+    // console.log(addedItems);
+  }
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      {/* <Header /> */}
 
-export default App
+      <div className="body__container">
+        <div className="nav">
+          <Header />
+          <div className="nav-right">
+            <Search
+              products={items}
+              value={searchValue}
+              onChangeData={changingSrarchData}
+            />
+            <Button num={addedItems.length} click={setShowAddProducts} />
+          </div>
+        </div>
+
+        {showAddProducts && (
+          <AddProducts
+            click={setShowAddProducts}
+            items={addedItems}
+            removeItem={removeItem}
+            setAddedItem={setAddedItem}
+          />
+        )}
+        <CardBody
+          products={itmesFilter}
+          addItem={addItem}
+          removeItem={removeItem}
+          addedItems={addedItems}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default App;
